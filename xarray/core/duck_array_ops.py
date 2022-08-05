@@ -18,10 +18,9 @@ from numpy import any as array_any  # noqa
 from numpy import zeros_like  # noqa
 from numpy import around, broadcast_to  # noqa
 from numpy import concatenate as _concatenate
-from numpy import einsum, isclose, isin, isnan, isnat  # noqa
+from numpy import einsum, isclose, isin, isnat  # noqa
 from numpy import stack as _stack
 from numpy import take, tensordot, transpose, unravel_index  # noqa
-from numpy import where as _where
 
 from . import dask_array_compat, dask_array_ops, dtypes, npcompat, nputils
 from .nputils import nanfirst, nanlast
@@ -33,6 +32,13 @@ try:
     from dask.base import tokenize
 except ImportError:
     dask_array = None  # type: ignore
+
+
+def get_array_namespace(x):
+    if hasattr(x, "__array_namespace__"):
+        return x.__array_namespace__()
+    else:
+        return np
 
 
 def _dask_or_eager_func(
@@ -107,7 +113,8 @@ def isnull(data):
         return isnat(data)
     elif issubclass(scalar_type, np.inexact):
         # float types use NaN for null
-        return isnan(data)
+        xp = get_array_namespace(data)
+        return xp.isnan(data)
     elif issubclass(scalar_type, (np.bool_, np.integer, np.character, np.void)):
         # these types cannot represent missing values
         return zeros_like(data, dtype=bool)
@@ -184,6 +191,13 @@ def as_shared_dtype(scalars_or_arrays):
         import cupy as cp
 
         arrays = [asarray(x, xp=cp) for x in scalars_or_arrays]
+    elif any(hasattr(x, "__array_namespace__") for x in scalars_or_arrays):
+        xp = [x for x in scalars_or_arrays if hasattr(x, "__array_namespace__")][
+            0
+        ].__array_namespace__()
+        arrays = [asarray(x, xp=xp) for x in scalars_or_arrays]
+        out_type = dtypes.result_type(*arrays)  # TODO: should use xp.result_type
+        return [xp.astype(x, out_type, copy=False) for x in arrays]
     else:
         arrays = [asarray(x) for x in scalars_or_arrays]
     # Pass arrays directly instead of dtypes to result_type so scalars
@@ -267,7 +281,8 @@ def count(data, axis=None):
 
 def where(condition, x, y):
     """Three argument where() with better dtype promotion rules."""
-    return _where(condition, *as_shared_dtype([x, y]))
+    xp = get_array_namespace(condition)
+    return xp.where(condition, *as_shared_dtype([x, y]))
 
 
 def where_method(data, cond, other=dtypes.NA):
@@ -329,11 +344,8 @@ def _create_nan_agg_method(name, coerce_strings=False, invariant_0d=False):
             if name in ["sum", "prod"]:
                 kwargs.pop("min_count", None)
 
-            if hasattr(values, "__array_namespace__"):
-                xp = values.__array_namespace__()
-                func = getattr(xp, name)
-            else:
-                func = getattr(np, name)
+            xp = get_array_namespace(values)
+            func = getattr(xp, name)
 
         try:
             with warnings.catch_warnings():

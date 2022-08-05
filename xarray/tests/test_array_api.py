@@ -29,6 +29,14 @@ def test_arithmetic(arrays) -> None:
 
 def test_aggregation(arrays) -> None:
     np_arr, xp_arr = arrays
+    expected = np_arr.sum()
+    actual = xp_arr.sum()
+    assert isinstance(actual.data, Array)
+    assert_equal(actual, expected)
+
+
+def test_aggregation_skipna(arrays) -> None:
+    np_arr, xp_arr = arrays
     expected = np_arr.sum(skipna=False)
     actual = xp_arr.sum(skipna=False)
     assert isinstance(actual.data, Array)

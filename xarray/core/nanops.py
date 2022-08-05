@@ -5,7 +5,14 @@ import warnings
 import numpy as np
 
 from . import dtypes, nputils, utils
-from .duck_array_ops import count, fillna, isnull, where, where_method
+from .duck_array_ops import (
+    count,
+    fillna,
+    get_array_namespace,
+    isnull,
+    where,
+    where_method,
+)
 from .pycompat import dask_array_type
 
 try:
@@ -106,7 +113,8 @@ def nanargmax(a, axis=None):
 
 def nansum(a, axis=None, dtype=None, out=None, min_count=None):
     a, mask = _replace_nan(a, 0)
-    result = np.sum(a, axis=axis, dtype=dtype)
+    xp = get_array_namespace(a)
+    result = xp.sum(a, axis=axis, dtype=dtype)
     if min_count is not None:
         return _maybe_null_out(result, axis, mask, min_count)
     else:
