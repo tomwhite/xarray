@@ -18,9 +18,16 @@ from numpy import any as array_any  # noqa
 from numpy import zeros_like  # noqa
 from numpy import around, broadcast_to  # noqa
 from numpy import concatenate as _concatenate
-from numpy import einsum, isclose, isin, isnat  # noqa
-from numpy import stack as _stack
-from numpy import take, tensordot, transpose, unravel_index  # noqa
+from numpy import (  # noqa
+    einsum,
+    isclose,
+    isin,
+    isnat,
+    take,
+    tensordot,
+    transpose,
+    unravel_index,
+)
 
 from . import dask_array_compat, dask_array_ops, dtypes, npcompat, nputils
 from .nputils import nanfirst, nanlast
@@ -176,7 +183,9 @@ def cumulative_trapezoid(y, x, axis):
 
 
 def astype(data, dtype, **kwargs):
-
+    if hasattr(data, "__array_namespace__"):
+        xp = get_array_namespace(data)
+        return xp.astype(data, dtype, **kwargs)
     return data.astype(dtype, **kwargs)
 
 
@@ -305,7 +314,8 @@ def concatenate(arrays, axis=0):
 
 def stack(arrays, axis=0):
     """stack() with better dtype promotion rules."""
-    return _stack(as_shared_dtype(arrays), axis=axis)
+    xp = get_array_namespace(arrays[0])
+    return xp.stack(as_shared_dtype(arrays), axis=axis)
 
 
 @contextlib.contextmanager
