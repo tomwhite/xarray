@@ -670,6 +670,7 @@ def open_zarr(
     storage_options=None,
     decode_timedelta=None,
     use_cftime=None,
+    manager=None,
     **kwargs,
 ):
     """Load and decode a dataset from a Zarr store.
@@ -800,6 +801,7 @@ def open_zarr(
         backend_kwargs=backend_kwargs,
         decode_timedelta=decode_timedelta,
         use_cftime=use_cftime,
+        manager=manager,
     )
     return ds
 

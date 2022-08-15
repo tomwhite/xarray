@@ -260,6 +260,7 @@ def _maybe_chunk(
     name_prefix="xarray-",
     overwrite_encoded_chunks=False,
     inline_array=False,
+    manager=None,
 ):
     from dask.base import tokenize
 
@@ -271,7 +272,9 @@ def _maybe_chunk(
         # subtle bugs result otherwise. see GH3350
         token2 = tokenize(name, token if token else var._data, chunks)
         name2 = f"{name_prefix}{name}-{token2}"
-        var = var.chunk(chunks, name=name2, lock=lock, inline_array=inline_array)
+        var = var.chunk(
+            chunks, name=name2, lock=lock, inline_array=inline_array, manager=manager
+        )
 
         if overwrite_encoded_chunks and var.chunks is not None:
             var.encoding["chunks"] = tuple(x[0] for x in var.chunks)

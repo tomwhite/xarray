@@ -1045,6 +1045,7 @@ class Variable(AbstractArray, NdimSizeLenMixin, VariableArithmetic):
         name: str = None,
         lock: bool = False,
         inline_array: bool = False,
+        manager: str | None = None,
         **chunks_kwargs: Any,
     ) -> Variable:
         """Coerce this array's data into a dask array with the given chunks.
@@ -1130,9 +1131,19 @@ class Variable(AbstractArray, NdimSizeLenMixin, VariableArithmetic):
             if utils.is_dict_like(chunks):
                 chunks = tuple(chunks.get(n, s) for n, s in enumerate(self.shape))
 
-            data = da.from_array(
-                data, chunks, name=name, lock=lock, inline_array=inline_array, **kwargs
-            )
+            if manager == "cubed":
+                import cubed
+
+                data = cubed.from_array(data, chunks=chunks)
+            else:
+                data = da.from_array(
+                    data,
+                    chunks,
+                    name=name,
+                    lock=lock,
+                    inline_array=inline_array,
+                    **kwargs,
+                )
 
         return self._replace(data=data)
 

@@ -304,6 +304,7 @@ def _chunk_ds(
     chunks,
     overwrite_encoded_chunks,
     inline_array,
+    manager=None,
     **extra_tokens,
 ):
     from dask.base import tokenize
@@ -323,6 +324,7 @@ def _chunk_ds(
             name_prefix=name_prefix,
             token=token,
             inline_array=inline_array,
+            manager=manager,
         )
     return backend_ds._replace(variables)
 
@@ -335,6 +337,7 @@ def _dataset_from_backend_dataset(
     cache,
     overwrite_encoded_chunks,
     inline_array,
+    manager=None,
     **extra_tokens,
 ):
     if not isinstance(chunks, (int, dict)) and chunks not in {None, "auto"}:
@@ -353,6 +356,7 @@ def _dataset_from_backend_dataset(
             chunks,
             overwrite_encoded_chunks,
             inline_array,
+            manager=manager,
             **extra_tokens,
         )
 
@@ -381,6 +385,7 @@ def open_dataset(
     drop_variables: str | Iterable[str] | None = None,
     inline_array: bool = False,
     backend_kwargs: dict[str, Any] | None = None,
+    manager: str | None = None,
     **kwargs,
 ) -> Dataset:
     """Open and decode a dataset from a file or file-like object.
@@ -543,6 +548,7 @@ def open_dataset(
         overwrite_encoded_chunks,
         inline_array,
         drop_variables=drop_variables,
+        manager=manager,
         **decoders,
         **kwargs,
     )
