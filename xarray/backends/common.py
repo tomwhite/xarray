@@ -147,7 +147,9 @@ class ArrayWriter:
         self.lock = lock
 
     def add(self, source, target, region=None):
-        if is_duck_dask_array(source):
+        import cubed
+
+        if is_duck_dask_array(source) or isinstance(source, cubed.CoreArray):
             self.sources.append(source)
             self.targets.append(target)
             self.regions.append(region)
@@ -159,19 +161,27 @@ class ArrayWriter:
 
     def sync(self, compute=True):
         if self.sources:
-            import dask.array as da
-
             # TODO: consider wrapping targets with dask.delayed, if this makes
             # for any discernible difference in perforance, e.g.,
             # targets = [dask.delayed(t) for t in self.targets]
+            # delayed_store = da.store(
+            #     self.sources,
+            #     self.targets,
+            #     lock=self.lock,
+            #     compute=compute,
+            #     flush=True,
+            #     regions=self.regions,
+            # )
+            import cubed
+            import dask.array as da
 
-            delayed_store = da.store(
+            delayed_store = cubed.store(
                 self.sources,
                 self.targets,
-                lock=self.lock,
-                compute=compute,
-                flush=True,
-                regions=self.regions,
+                # lock=self.lock,
+                # compute=compute,
+                # flush=True,
+                # regions=self.regions,
             )
             self.sources = []
             self.targets = []

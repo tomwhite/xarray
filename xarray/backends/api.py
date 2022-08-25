@@ -1638,6 +1638,7 @@ def to_zarr(
                     "mode='r+'. To allow writing new variables, set mode='a'."
                 )
 
+    # TODO: have a manager to allow cubed/dask here (pass into ArrayWriter?)
     writer = ArrayWriter()
     # TODO: figure out how to properly handle unlimited_dims
     dump_to_store(dataset, zstore, writer, encoding=encoding)
