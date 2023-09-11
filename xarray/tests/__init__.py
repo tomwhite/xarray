@@ -111,7 +111,7 @@ with warnings.catch_warnings():
 
     has_h5netcdf, requires_h5netcdf = _importorskip("h5netcdf")
 has_cftime, requires_cftime = _importorskip("cftime")
-has_dask, requires_dask = _importorskip("dask")
+has_dask, requires_dask = _importorskip("cubed")  # TODO: temp hack
 has_dask_ge_2024_08_1, requires_dask_ge_2024_08_1 = _importorskip(
     "dask", minversion="2024.08.1"
 )
@@ -246,7 +246,7 @@ has_netCDF4_1_7_0_or_above, requires_netCDF4_1_7_0_or_above = _importorskip(
 set_options(warn_for_unclosed_files=True)
 
 if has_dask:
-    import dask
+    import cubed
 
 
 class CountingScheduler:
@@ -268,11 +268,13 @@ class CountingScheduler:
 
 
 def raise_if_dask_computes(max_computes=0):
-    # return a dummy context manager so that this can be used for non-dask objects
-    if not has_dask:
-        return nullcontext()
-    scheduler = CountingScheduler(max_computes)
-    return dask.config.set(scheduler=scheduler)
+    # TODO: need an equivalent for cubed (raise_if_cubed_computes)
+    return nullcontext()
+    # # return a dummy context manager so that this can be used for non-dask objects
+    # if not has_dask:
+    #     return nullcontext()
+    # scheduler = CountingScheduler(max_computes)
+    # return dask.config.set(scheduler=scheduler)
 
 
 flaky = pytest.mark.flaky

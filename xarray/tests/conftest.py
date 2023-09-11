@@ -32,7 +32,7 @@ def handle_numpy_1_warnings():
         yield
 
 
-@pytest.fixture(params=["numpy", pytest.param("dask", marks=requires_dask)])
+@pytest.fixture(params=["numpy", pytest.param("cubed", marks=requires_dask)])
 def backend(request):
     return request.param
 
@@ -86,7 +86,7 @@ def ds(request, backend):
     else:
         raise ValueError
 
-    if backend == "dask":
+    if backend == "cubed":
         return ds.chunk()
 
     return ds
@@ -112,7 +112,7 @@ def da(request, backend):
             dims=list("zyx"),
         )
 
-    if backend == "dask":
+    if backend == "cubed":
         return da.chunk()
     elif backend == "numpy":
         return da
