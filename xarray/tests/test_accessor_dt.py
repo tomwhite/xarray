@@ -165,7 +165,7 @@ class TestDatetimeAccessor:
         ],
     )
     def test_dask_field_access(self, field) -> None:
-        import dask.array as da
+        import cubed as da
 
         expected = getattr(self.times_data.dt, field)
 
@@ -191,7 +191,7 @@ class TestDatetimeAccessor:
         ],
     )
     def test_isocalendar_dask(self, field) -> None:
-        import dask.array as da
+        import cubed as da
 
         expected = getattr(self.times_data.dt.isocalendar(), field)
 
@@ -218,7 +218,7 @@ class TestDatetimeAccessor:
         ],
     )
     def test_dask_accessor_method(self, method, parameters) -> None:
-        import dask.array as da
+        import cubed as da
 
         expected = getattr(self.times_data.dt, method)(parameters)
         dask_times_arr = da.from_array(self.times_arr, chunks=(5, 5, 50))
@@ -324,7 +324,7 @@ class TestTimedeltaAccessor:
         "field", ["days", "seconds", "microseconds", "nanoseconds"]
     )
     def test_dask_field_access(self, field) -> None:
-        import dask.array as da
+        import cubed as da
 
         expected = getattr(self.times_data.dt, field)
 
@@ -345,7 +345,7 @@ class TestTimedeltaAccessor:
         "method, parameters", [("floor", "D"), ("ceil", "D"), ("round", "D")]
     )
     def test_dask_accessor_method(self, method, parameters) -> None:
-        import dask.array as da
+        import cubed as da
 
         expected = getattr(self.times_data.dt, method)(parameters)
         dask_times_arr = da.from_array(self.times_arr, chunks=(5, 5, 50))
@@ -439,7 +439,7 @@ def test_calendar_datetime64_2d() -> None:
 
 @requires_dask
 def test_calendar_datetime64_3d_dask() -> None:
-    import dask.array as da
+    import cubed as da
 
     data = xr.DataArray(
         da.zeros((4, 5, 6), dtype="datetime64[ns]"), dims=("x", "y", "z")
@@ -505,7 +505,7 @@ def test_cftime_strftime_access(data) -> None:
     "field", ["year", "month", "day", "hour", "dayofyear", "dayofweek"]
 )
 def test_dask_field_access_1d(data, field) -> None:
-    import dask.array as da
+    import cubed as da
 
     expected = xr.DataArray(
         getattr(xr.coding.cftimeindex.CFTimeIndex(data.time.values), field),
@@ -525,7 +525,7 @@ def test_dask_field_access_1d(data, field) -> None:
     "field", ["year", "month", "day", "hour", "dayofyear", "dayofweek"]
 )
 def test_dask_field_access(times_3d, data, field) -> None:
-    import dask.array as da
+    import cubed as da
 
     expected = xr.DataArray(
         getattr(
@@ -590,7 +590,7 @@ def cftime_rounding_dataarray(cftime_date_type):
 def test_cftime_floor_accessor(
     cftime_rounding_dataarray, cftime_date_type, use_dask
 ) -> None:
-    import dask.array as da
+    import cubed as da
 
     freq = "D"
     expected = xr.DataArray(
@@ -623,7 +623,7 @@ def test_cftime_floor_accessor(
 def test_cftime_ceil_accessor(
     cftime_rounding_dataarray, cftime_date_type, use_dask
 ) -> None:
-    import dask.array as da
+    import cubed as da
 
     freq = "D"
     expected = xr.DataArray(
@@ -656,7 +656,7 @@ def test_cftime_ceil_accessor(
 def test_cftime_round_accessor(
     cftime_rounding_dataarray, cftime_date_type, use_dask
 ) -> None:
-    import dask.array as da
+    import cubed as da
 
     freq = "D"
     expected = xr.DataArray(
