@@ -57,7 +57,7 @@ def dtype(request):
 
 @requires_dask
 def test_dask() -> None:
-    import dask.array as da
+    import cubed as da
 
     arr = da.from_array(["a", "b", "c"], chunks=-1)
     xarr = xr.DataArray(arr)
