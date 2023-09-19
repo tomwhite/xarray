@@ -732,21 +732,33 @@ def interp_func(var, x, new_x, method: InterpOptions, kwargs):
         else:
             dtype = var.dtype
 
-        meta = var._meta
-
-        return chunkmanager.blockwise(
-            _chunked_aware_interpnd,
-            out_ind,
-            *args,
-            interp_func=func,
-            interp_kwargs=kwargs,
-            localize=localize,
-            concatenate=True,
-            dtype=dtype,
-            new_axes=new_axes,
-            meta=meta,
-            align_arrays=False,
-        )
+        if hasattr(var, "_meta"):
+            meta = var._meta
+            return chunkmanager.blockwise(
+                _chunked_aware_interpnd,
+                out_ind,
+                *args,
+                interp_func=func,
+                interp_kwargs=kwargs,
+                localize=localize,
+                concatenate=True,
+                dtype=dtype,
+                new_axes=new_axes,
+                meta=meta,
+                align_arrays=False,
+            )
+        else:
+            return chunkmanager.blockwise(
+                _chunked_aware_interpnd,
+                out_ind,
+                *args,
+                interp_func=func,
+                interp_kwargs=kwargs,
+                localize=localize,
+                dtype=dtype,
+                new_axes=new_axes,
+                align_arrays=False,
+            )
 
     return _interpnd(var, x, new_x, func, kwargs)
 
