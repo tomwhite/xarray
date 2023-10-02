@@ -1583,7 +1583,8 @@ class ArrayApiIndexingAdapter(ExplicitlyIndexedNDArrayMixin):
         return value
 
     def _vindex_get(self, indexer: VectorizedIndexer):
-        raise TypeError("Vectorized indexing is not supported")
+        key = indexer.tuple
+        return self.array.zarray.vindex[key]
 
     def __getitem__(self, indexer: ExplicitIndexer):
         self._check_and_raise_if_non_basic_indexer(indexer)
