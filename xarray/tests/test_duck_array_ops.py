@@ -226,10 +226,10 @@ class TestOps:
 class TestDaskOps(TestOps):
     @pytest.fixture(autouse=True)
     def setUp(self):
-        import dask.array
+        import cubed
 
-        self.x = dask.array.from_array(
-            [
+        self.x = cubed.from_array(
+            np.array([
                 [
                     [nan, nan, 2.0, nan],
                     [nan, 5.0, 6.0, nan],
@@ -240,7 +240,7 @@ class TestDaskOps(TestOps):
                     [nan, 17.0, 18.0, nan],
                     [nan, 21.0, nan, nan],
                 ],
-            ],
+            ]),
             chunks=(2, 1, 2),
         )
 
