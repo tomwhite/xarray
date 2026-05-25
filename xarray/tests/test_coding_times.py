@@ -38,6 +38,7 @@ from xarray.conventions import _update_bounds_attributes, cf_encoder
 from xarray.core.common import contains_cftime_datetimes
 from xarray.core.types import PDDatetimeUnitOptions
 from xarray.core.utils import is_duck_dask_array
+from xarray.namedarray.pycompat import is_chunked_array
 from xarray.testing import assert_equal, assert_identical
 from xarray.tests import (
     _ALL_CALENDARS,
@@ -1630,15 +1631,15 @@ _ENCODE_DATETIME64_VIA_DASK_TESTS = {
 def test_encode_cf_datetime_datetime64_via_dask(
     freq, units, dtype, time_unit: PDDatetimeUnitOptions
 ) -> None:
-    import dask.array
+    import cubed
 
     times_pd = pd.date_range(start="1700", freq=freq, periods=3, unit=time_unit)
-    times = dask.array.from_array(times_pd, chunks=1)
+    times = cubed.from_array(times_pd, chunks=1)
     encoded_times, encoding_units, encoding_calendar = encode_cf_datetime(
         times, units, None, dtype
     )
 
-    assert is_duck_dask_array(encoded_times)
+    assert is_chunked_array(encoded_times)
     assert encoded_times.chunks == times.chunks
 
     if units is not None and dtype is not None:
@@ -1684,18 +1685,18 @@ def test_encode_via_dask_cannot_infer_error(
     ("units", "dtype"), [("days since 1700-01-01", np.dtype("int32")), (None, None)]
 )
 def test_encode_cf_datetime_cftime_datetime_via_dask(units, dtype) -> None:
-    import dask.array
+    import cubed
 
     calendar = "standard"
     times_idx = date_range(
         start="1700", freq="D", periods=3, calendar=calendar, use_cftime=True
     )
-    times = dask.array.from_array(times_idx, chunks=1)
+    times = cubed.from_array(times_idx, chunks=1)
     encoded_times, encoding_units, encoding_calendar = encode_cf_datetime(
         times, units, None, dtype
     )
 
-    assert is_duck_dask_array(encoded_times)
+    assert is_chunked_array(encoded_times)
     assert encoded_times.chunks == times.chunks
 
     if units is not None and dtype is not None:
@@ -1766,13 +1767,13 @@ def test_encode_cf_datetime_precision_loss_regression_test(use_dask) -> None:
 def test_encode_cf_timedelta_via_dask(
     units: str | None, dtype: np.dtype | None, time_unit: PDDatetimeUnitOptions
 ) -> None:
-    import dask.array
+    import cubed
 
     times_pd = pd.timedelta_range(start="0D", freq="D", periods=3, unit=time_unit)  # type: ignore[call-arg,unused-ignore]
-    times = dask.array.from_array(times_pd, chunks=1)
+    times = cubed.from_array(times_pd, chunks=1)
     encoded_times, encoding_units = encode_cf_timedelta(times, units, dtype)
 
-    assert is_duck_dask_array(encoded_times)
+    assert is_chunked_array(encoded_times)
     assert encoded_times.chunks == times.chunks
 
     if units is not None and dtype is not None:

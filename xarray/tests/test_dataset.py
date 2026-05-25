@@ -79,7 +79,7 @@ from xarray.tests import (
 from xarray.tests.indexes import ScalarIndex, XYIndex
 
 with contextlib.suppress(ImportError):
-    import dask.array as da
+    import cubed as da
 
 # from numpy version 2.0 trapz is deprecated and renamed to trapezoid
 # remove once numpy 2.0 is the oldest supported version
@@ -1156,7 +1156,7 @@ class TestDataset:
         ],
     )
     def test_chunk_by_season_resampler(self, use_cftime: bool, calendar: str) -> None:
-        import dask.array
+        import cubed
 
         N = 365 + 365  # 2 years - 1 day
         time = xr.date_range(
@@ -1165,8 +1165,8 @@ class TestDataset:
 
         ds = Dataset(
             {
-                "pr": ("time", dask.array.random.random((N), chunks=(20))),
-                "pr2d": (("x", "time"), dask.array.random.random((10, N), chunks=(20))),
+                "pr": ("time", cubed.from_array(np.random.random(N), chunks=20)),
+                "pr2d": (("x", "time"), cubed.from_array(np.random.random((10, N)), chunks=(10, 20))),
                 "ones": ("time", np.ones((N,))),
             },
             coords={"time": time},
@@ -1326,7 +1326,7 @@ class TestDataset:
     @pytest.mark.parametrize("freq", ["D", "W", "5ME", "YE"])
     @pytest.mark.parametrize("add_gap", [True, False])
     def test_chunk_by_frequency(self, freq: str, calendar: str, add_gap: bool) -> None:
-        import dask.array
+        import cubed
 
         N = 365 * 2
         ΔN = 28  # noqa: PLC2401
@@ -1342,8 +1342,8 @@ class TestDataset:
 
         ds = Dataset(
             {
-                "pr": ("time", dask.array.random.random((N), chunks=(20))),
-                "pr2d": (("x", "time"), dask.array.random.random((10, N), chunks=(20))),
+                "pr": ("time", cubed.from_array(np.random.random(N), chunks=20)),
+                "pr2d": (("x", "time"), cubed.from_array(np.random.random((10, N)), chunks=(10, 20))),
                 "ones": ("time", np.ones((N,))),
             },
             coords={"time": time},
@@ -8371,11 +8371,11 @@ class TestNumpyCoercion:
     @requires_dask
     @requires_pint
     def test_from_pint_wrapping_dask(self) -> None:
-        import dask
+        import cubed
         from pint import Quantity
 
         arr = np.array([1, 2, 3])
-        d = dask.array.from_array(arr)
+        d = cubed.from_array(arr)
         ds = xr.Dataset(
             {"a": ("x", Quantity(d, units="Pa"))},
             coords={"lat": ("x", Quantity(d, units="m") * 2)},

@@ -176,6 +176,7 @@ class TestGetChunkManager:
 
     @requires_dask
     def test_get_dask_if_installed(self) -> None:
+        pytest.importorskip("dask")
         chunkmanager = guess_chunkmanager(None)
         assert isinstance(chunkmanager, DaskManager)
 
@@ -195,6 +196,7 @@ class TestGetChunkManager:
     def test_choose_dask_over_other_chunkmanagers(
         self, register_dummy_chunkmanager
     ) -> None:
+        pytest.importorskip("dask")
         chunk_manager = guess_chunkmanager(None)
         assert isinstance(chunk_manager, DaskManager)
 
@@ -241,8 +243,7 @@ class TestGetChunkedArrayType:
 
     @requires_dask
     def test_detect_dask_if_installed(self) -> None:
-        import dask.array as da
-
+        da = pytest.importorskip("dask.array")
         dask_arr = da.from_array([1, 2, 3], chunks=(1,))
 
         chunk_manager = get_chunked_array_type(dask_arr)
@@ -250,8 +251,7 @@ class TestGetChunkedArrayType:
 
     @requires_dask
     def test_raise_on_mixed_array_types(self, register_dummy_chunkmanager) -> None:
-        import dask.array as da
-
+        da = pytest.importorskip("dask.array")
         dummy_arr = DummyChunkedArray([1, 2, 3])
         dask_arr = da.from_array([1, 2, 3], chunks=(1,))
 

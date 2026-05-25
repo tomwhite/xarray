@@ -165,7 +165,7 @@ def d(request, backend, type) -> DataArray | Dataset:
     else:
         raise ValueError
 
-    if backend == "dask":
+    if backend in ("dask", "cubed"):
         return result.chunk()
     elif backend == "numpy":
         return result

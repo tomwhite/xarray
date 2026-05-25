@@ -3438,9 +3438,9 @@ def test_dataarray_not_loading_inplace(plotfunc: str) -> None:
     with figure_context():
         getattr(ds.A.plot, plotfunc)(x="x")
 
-    from dask.array import Array
+    import cubed
 
-    assert isinstance(ds.A.data, Array)
+    assert isinstance(ds.A.data, cubed.Array)
 
 
 @requires_matplotlib

@@ -119,8 +119,7 @@ with contextlib.suppress(ImportError):
     import netCDF4 as nc4
 
 with contextlib.suppress(ImportError):
-    import dask
-    import dask.array as da
+    import cubed as da
 
 with contextlib.suppress(ImportError):
     import fsspec
@@ -1365,6 +1364,7 @@ class CFEncodedBase(DatasetIOBase):
     @requires_iris
     @requires_netcdf
     def test_coordinate_variables_after_iris_roundtrip(self) -> None:
+        pytest.importorskip("dask")
         original = self._create_cf_dataset()
         iris_cube = original["variable"].to_iris()
         actual = DataArray.from_iris(iris_cube)
@@ -1990,6 +1990,7 @@ class NetCDF4Base(NetCDFBase):
 
     @requires_dask
     def test_auto_chunking_is_based_on_disk_chunk_sizes(self) -> None:
+        dask = pytest.importorskip("dask")
         x_size = y_size = 1000
         y_chunksize = y_size
         x_chunksize = 10
@@ -2262,11 +2263,13 @@ class NetCDF4Base(NetCDFBase):
 
     @requires_dask
     def test_encoding_masked_arrays(self, tmp_path) -> None:
+        import cubed
+
         store_path = tmp_path / "tmp.nc"
 
         with raise_if_dask_computes():
             ds = xr.DataArray(
-                dask.array.from_array(
+                cubed.from_array(
                     np.ma.masked_array(
                         np.array([[np.nan, np.nan], [np.nan, 2]]),
                         np.array([[True, True], [True, False]]),
@@ -3385,6 +3388,7 @@ class ZarrBase(CFEncodedBase):
 
     @requires_dask
     def test_to_zarr_compute_false_roundtrip(self) -> None:
+        pytest.importorskip("dask")
         from dask.delayed import Delayed
 
         original = create_test_data().chunk()
@@ -3405,6 +3409,7 @@ class ZarrBase(CFEncodedBase):
 
     @requires_dask
     def test_to_zarr_append_compute_false_roundtrip(self) -> None:
+        pytest.importorskip("dask")
         from dask.delayed import Delayed
 
         ds, ds_to_append, _ = create_append_test_data()
@@ -3468,8 +3473,10 @@ class ZarrBase(CFEncodedBase):
     @pytest.mark.parametrize("use_dask", [False, True])
     @pytest.mark.parametrize("write_empty", [False, True, None])
     def test_write_region(self, consolidated, compute, use_dask, write_empty) -> None:
-        if (use_dask or not compute) and not has_dask:
-            pytest.skip("requires dask")
+        if not compute:
+            pytest.importorskip("dask")
+        if use_dask and not has_dask:
+            pytest.skip("requires a chunked array library")
 
         zeros = Dataset({"u": (("x",), np.zeros(10))})
         nonzeros = Dataset({"u": (("x",), np.arange(1, 11))})
@@ -3529,6 +3536,7 @@ class ZarrBase(CFEncodedBase):
     @requires_dask
     def test_write_preexisting_override_metadata(self) -> None:
         """Metadata should be overridden if mode="a" but not in mode="r+"."""
+        pytest.importorskip("dask")
         original = Dataset(
             {"u": (("x",), np.zeros(10), {"variable": "original"})},
             attrs={"global": "original"},
@@ -3811,13 +3819,15 @@ class ZarrBase(CFEncodedBase):
     @requires_dask
     @pytest.mark.parametrize("dtype", [int, float])
     def test_zarr_fill_value_setting(self, dtype):
+        pytest.importorskip("dask")
+        import dask.array as dask_array
         # When zarr_format=2, _FillValue sets fill_value
         # When zarr_format=3, fill_value is set independently
         # We test this by writing a dask array with compute=False,
         # on read we should receive chunks filled with `fill_value`
         fv = -1
         ds = xr.Dataset(
-            {"foo": ("x", dask.array.from_array(np.array([0, 0, 0], dtype=dtype)))}
+            {"foo": ("x", dask_array.from_array(np.array([0, 0, 0], dtype=dtype)))}
         )
         expected = xr.Dataset({"foo": ("x", [fv] * 3)})
 
@@ -6510,6 +6520,7 @@ class TestDask(DatasetIOBase):
         assert_allclose(actual, computed, decode_bytes=False)
 
     def test_save_mfdataset_compute_false_roundtrip(self) -> None:
+        pytest.importorskip("dask")
         from dask.delayed import Delayed
 
         original = Dataset({"foo": ("x", np.random.randn(10))}).chunk()
@@ -6984,6 +6995,7 @@ class TestDataArrayToZarr:
 
     @requires_dask
     def test_dataarray_to_zarr_compute_false(self, tmp_store) -> None:
+        pytest.importorskip("dask")
         from dask.delayed import Delayed
 
         skip_if_zarr_format_3(tmp_store)
@@ -7398,6 +7410,7 @@ def test_load_single_value_h5netcdf(tmp_path: Path) -> None:
     "chunks", ["auto", -1, {}, {"x": "auto"}, {"x": -1}, {"x": "auto", "y": -1}]
 )
 def test_open_dataset_chunking_zarr(chunks, tmp_path: Path) -> None:
+    dask = pytest.importorskip("dask")
     encoded_chunks = 100
     dask_arr = da.from_array(
         np.ones((500, 500), dtype="float64"), chunks=encoded_chunks
@@ -7428,6 +7441,7 @@ def test_open_dataset_chunking_zarr(chunks, tmp_path: Path) -> None:
 )
 @pytest.mark.filterwarnings("ignore:The specified chunks separate")
 def test_chunking_consistency(chunks, tmp_path: Path) -> None:
+    dask = pytest.importorskip("dask")
     encoded_chunks: dict[str, Any] = {}
     dask_arr = da.from_array(
         np.ones((500, 500), dtype="float64"), chunks=encoded_chunks

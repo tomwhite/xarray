@@ -488,7 +488,7 @@ class TestDecodeCF:
 
     @requires_dask
     def test_decode_cf_with_dask(self) -> None:
-        import dask.array as da
+        import cubed as da
 
         original = Dataset(
             {

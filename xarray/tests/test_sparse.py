@@ -890,7 +890,7 @@ def test_chunk():
 
 @requires_dask
 def test_dask_token():
-    import dask
+    dask = pytest.importorskip("dask")
 
     s = sparse.COO.from_numpy(np.array([0, 0, 1, 2]))
     a = DataArray(s)

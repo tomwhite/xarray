@@ -1233,11 +1233,11 @@ class TestConcatDataArray:
 
     @requires_dask
     def test_concat_lazy(self) -> None:
-        import dask.array as da
+        import cubed as da
 
         arrays = [
             DataArray(
-                da.from_array(InaccessibleArray(np.zeros((3, 3))), 3), dims=["x", "y"]
+                da.from_array(InaccessibleArray(np.zeros((3, 3))), chunks=3), dims=["x", "y"]
             )
             for _ in range(2)
         ]

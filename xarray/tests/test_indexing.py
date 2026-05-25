@@ -976,7 +976,7 @@ def test_create_mask_basic_indexer() -> None:
 
 
 def test_create_mask_dask() -> None:
-    da = pytest.importorskip("dask.array")
+    import cubed as da
 
     indexer = indexing.OuterIndexer((1, slice(2), np.array([0, -1, 2])))
     expected = np.array(2 * [[False, True, False]])
@@ -1105,14 +1105,14 @@ def test_indexing_1d_object_array() -> None:
 
 @requires_dask
 def test_indexing_dask_array() -> None:
-    import dask.array
+    import cubed
 
     da = DataArray(
         np.ones(10 * 3 * 3).reshape((10, 3, 3)),
         dims=("time", "x", "y"),
     ).chunk(dict(time=-1, x=1, y=1))
     with raise_if_dask_computes():
-        actual = da.isel(time=dask.array.from_array([9], chunks=(1,)))
+        actual = da.isel(time=cubed.from_array([9], chunks=(1,)))
     expected = da.isel(time=[9])
     assert_identical(actual, expected)
 
@@ -1120,9 +1120,9 @@ def test_indexing_dask_array() -> None:
 @requires_dask
 def test_indexing_dask_array_scalar() -> None:
     # GH4276
-    import dask.array
+    import cubed
 
-    a = dask.array.from_array(np.linspace(0.0, 1.0))
+    a = cubed.from_array(np.linspace(0.0, 1.0))
     da = DataArray(a, dims="x")
     x_selector = da.argmax(dim=...)
     assert not isinstance(x_selector, DataArray)
@@ -1166,12 +1166,12 @@ def test_vectorized_indexing_dask_array() -> None:
 @requires_dask
 def test_advanced_indexing_dask_array() -> None:
     # GH4663
-    import dask.array as da
+    import cubed
 
     ds = Dataset(
         dict(
-            a=("x", da.from_array(np.random.randint(0, 100, 100))),
-            b=(("x", "y"), da.random.random((100, 10))),
+            a=("x", cubed.from_array(np.random.randint(0, 100, 100))),
+            b=(("x", "y"), cubed.from_array(np.random.random((100, 10)), chunks=(100, 10))),
         )
     )
     expected = ds.b.sel(x=ds.a.compute())

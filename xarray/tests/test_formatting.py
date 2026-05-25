@@ -614,10 +614,10 @@ class TestFormatting:
         assert format(var, "d") == "0"
         assert format(var, ".2f") == "0.00"
 
-        # Test dask scalars, not supported however:
-        import dask.array as da
+        # Test chunked scalars, not supported however:
+        import cubed
 
-        var = xr.DataArray(da.array(0))
+        var = xr.DataArray(cubed.from_array(np.array(0)))
         assert format(var, "") == repr(var)
         with pytest.raises(TypeError) as excinfo:
             format(var, ".2f")

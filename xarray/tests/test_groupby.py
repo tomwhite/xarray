@@ -3215,11 +3215,11 @@ def test_groupby_transpose() -> None:
     ],
 )
 def test_lazy_grouping(grouper, expect_index):
-    import dask.array
+    import cubed
 
     data = DataArray(
         dims=("x", "y"),
-        data=dask.array.arange(20, chunks=3).reshape((4, 5)),
+        data=cubed.arange(20, chunks=3).reshape((4, 5)),
         name="zoo",
     )
     with raise_if_dask_computes():
@@ -3248,13 +3248,13 @@ def test_lazy_grouping(grouper, expect_index):
 
 @requires_dask
 def test_lazy_grouping_errors() -> None:
-    import dask.array
+    import cubed
 
     data = DataArray(
         dims=("x",),
-        data=dask.array.arange(20, chunks=3),
+        data=cubed.arange(20, chunks=3),
         name="foo",
-        coords={"y": ("x", dask.array.arange(20, chunks=3))},
+        coords={"y": ("x", cubed.arange(20, chunks=3))},
     )
 
     gb = data.groupby(y=UniqueGrouper(labels=np.arange(5, 10)))
@@ -3272,11 +3272,11 @@ def test_lazy_grouping_errors() -> None:
 
 @requires_dask
 def test_lazy_int_bins_error() -> None:
-    import dask.array
+    import cubed
 
     with pytest.raises(ValueError, match="Bin edges must be provided"):
         with raise_if_dask_computes():
-            _ = BinGrouper(bins=4).factorize(DataArray(dask.array.arange(3)))
+            _ = BinGrouper(bins=4).factorize(DataArray(cubed.arange(3)))
 
 
 def test_time_grouping_seasons_specified() -> None:

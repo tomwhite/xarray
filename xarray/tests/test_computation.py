@@ -1169,7 +1169,7 @@ def test_dataset_join() -> None:
 
 @requires_dask
 def test_apply_dask() -> None:
-    import dask.array as da
+    import cubed as da
 
     array = da.ones((2,), chunks=2)
     variable = xr.Variable("x", array)
@@ -1211,7 +1211,7 @@ def test_apply_dask() -> None:
 
 @requires_dask
 def test_apply_dask_parallelized_one_arg() -> None:
-    import dask.array as da
+    import cubed as da
 
     array = da.ones((2, 2), chunks=(1, 1))
     data_array = xr.DataArray(array, dims=("x", "y"))
@@ -1231,7 +1231,7 @@ def test_apply_dask_parallelized_one_arg() -> None:
 
 @requires_dask
 def test_apply_dask_parallelized_two_args() -> None:
-    import dask.array as da
+    import cubed as da
 
     array = da.ones((2, 2), chunks=(1, 1), dtype=np.int64)
     data_array = xr.DataArray(array, dims=("x", "y"))
@@ -1259,7 +1259,7 @@ def test_apply_dask_parallelized_two_args() -> None:
 
 @requires_dask
 def test_apply_dask_parallelized_errors() -> None:
-    import dask.array as da
+    import cubed as da
 
     array = da.ones((2, 2), chunks=(1, 1))
     data_array = xr.DataArray(array, dims=("x", "y"))
@@ -1285,7 +1285,7 @@ def test_apply_dask_parallelized_errors() -> None:
 @requires_dask
 @pytest.mark.filterwarnings("ignore:Mean of empty slice")
 def test_apply_dask_multiple_inputs() -> None:
-    import dask.array as da
+    import cubed as da
 
     def covariance(x, y):
         return (
@@ -1328,7 +1328,7 @@ def test_apply_dask_multiple_inputs() -> None:
 
 @requires_dask
 def test_apply_dask_new_output_dimension() -> None:
-    import dask.array as da
+    import cubed as da
 
     array = da.ones((2, 2), chunks=(1, 1))
     data_array = xr.DataArray(array, dims=("x", "y"))
@@ -1591,16 +1591,16 @@ def test_lazy_corrcov(
     n: int, dim: str | None, ddof: int, array_tuples: tuple[xr.DataArray, xr.DataArray]
 ) -> None:
     # GH 5284
-    from dask import is_dask_collection
+    from xarray.namedarray.pycompat import is_chunked_array
 
     da_a, da_b = array_tuples[n]
 
     with raise_if_dask_computes():
         cov = xr.cov(da_a.chunk(), da_b.chunk(), dim=dim, ddof=ddof)
-        assert is_dask_collection(cov)
+        assert is_chunked_array(cov)
 
         corr = xr.corr(da_a.chunk(), da_b.chunk(), dim=dim)
-        assert is_dask_collection(corr)
+        assert is_chunked_array(corr)
 
 
 @pytest.mark.parametrize("ddof", [0, 1])

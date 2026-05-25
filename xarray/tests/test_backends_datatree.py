@@ -780,7 +780,7 @@ class TestZarrDatatreeIO:
     def test_to_zarr_compute_false(
         self, tmp_path: Path, simple_datatree: DataTree, zarr_format: Literal[2, 3]
     ) -> None:
-        import dask.array as da
+        da = pytest.importorskip("dask.array")
 
         storepath = tmp_path / "test.zarr"
         original_dt = simple_datatree.chunk()
@@ -877,7 +877,7 @@ class TestZarrDatatreeIO:
 
     @requires_dask
     def test_to_zarr_no_redundant_computation(self, tmpdir, zarr_format) -> None:
-        import dask.array as da
+        da = pytest.importorskip("dask.array")
 
         eval_count = 0
 

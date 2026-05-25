@@ -501,10 +501,11 @@ class TestDataArray:
     @requires_dask
     def test_constructor_dask_coords(self) -> None:
         # regression test for GH1684
-        import dask.array as da
+        import cubed as da
+        import cubed.random
 
         coord = da.arange(8, chunks=(4,))
-        data = da.random.random((8, 8), chunks=(4, 4)) + 1
+        data = cubed.random.random((8, 8), chunks=(4, 4)) + 1
         actual = DataArray(data, coords={"x": coord, "y": coord}, dims=["x", "y"])
 
         ecoord = np.arange(8)
@@ -4823,7 +4824,7 @@ class TestDataArray:
         dd = DataArray(data=d, dims=["z"], name="d", coords={"d2": ("z", d)})
 
         if backend == "dask":
-            import dask.array as da
+            import cubed as da
 
             aa = aa.copy(data=da.from_array(a, chunks=3))
             bb = bb.copy(data=da.from_array(b, chunks=3))
@@ -7137,6 +7138,7 @@ class TestIrisConversion:
     @requires_iris
     @requires_dask
     def test_to_and_from_iris_dask(self) -> None:
+        pytest.importorskip("dask")
         import cf_units  # iris requirement
         import dask.array as da
         import iris
@@ -7587,11 +7589,11 @@ class TestNumpyCoercion:
     @requires_dask
     @requires_pint
     def test_from_pint_wrapping_dask(self) -> None:
-        import dask
+        import cubed
         from pint import Quantity
 
         arr = np.array([1, 2, 3])
-        d = dask.array.from_array(arr)
+        d = cubed.from_array(arr)
         da = xr.DataArray(
             Quantity(d, units="Pa"),
             dims="x",

@@ -937,9 +937,9 @@ def test_datetime_to_numeric_datetime64(dask, time_unit: PDDatetimeUnitOptions):
 
     times = pd.date_range("2000", periods=5, freq="7D").as_unit(time_unit).values
     if dask:
-        import dask.array
+        import cubed
 
-        times = dask.array.from_array(times, chunks=-1)
+        times = cubed.from_array(times, chunks=-1)
 
     with raise_if_dask_computes():
         result = duck_array_ops.datetime_to_numeric(times, datetime_unit="h")
@@ -973,9 +973,9 @@ def test_datetime_to_numeric_cftime(dask):
         "2000", periods=5, freq="7D", calendar="standard", use_cftime=True
     ).values
     if dask:
-        import dask.array
+        import cubed
 
-        times = dask.array.from_array(times, chunks=-1)
+        times = cubed.from_array(times, chunks=-1)
     with raise_if_dask_computes():
         result = duck_array_ops.datetime_to_numeric(times, datetime_unit="h", dtype=int)
     expected = 24 * np.arange(0, 35, 7)
@@ -999,7 +999,7 @@ def test_datetime_to_numeric_cftime(dask):
 
     with raise_if_dask_computes():
         if dask:
-            time = dask.array.asarray(times[1])
+            time = cubed.from_array(np.asarray(times[1]))
         else:
             time = np.asarray(times[1])
         result = duck_array_ops.datetime_to_numeric(
@@ -1131,8 +1131,8 @@ def test_least_squares(use_dask, skipna):
 )
 def test_push_dask(method, arr):
     import bottleneck
-    import dask.array as da
 
+    da = pytest.importorskip("dask.array")
     arr = np.array(arr)
     chunks = list(range(1, 11)) + [(1, 2, 3, 2, 2, 1, 1)]
 

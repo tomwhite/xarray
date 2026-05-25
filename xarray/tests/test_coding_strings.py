@@ -16,7 +16,7 @@ from xarray.tests import (
 )
 
 with suppress(ImportError):
-    import dask.array as da
+    import cubed as da
 
 
 def test_vlen_dtype() -> None:

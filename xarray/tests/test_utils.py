@@ -226,7 +226,7 @@ class Test_hashable:
 @requires_dask
 def test_dask_array_is_scalar():
     # regression test for GH1684
-    import dask.array as da
+    import cubed as da
 
     y = da.arange(8, chunks=4)
     assert not utils.is_scalar(y)

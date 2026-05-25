@@ -678,9 +678,9 @@ class VariableSubclassobjects(NamedArraySubclassobjects, ABC):
         v = self.cls("x", data)
         print(v)  # should not error
         if v.dtype == np.dtype("O"):
-            import dask.array as da
+            import cubed
 
-            assert isinstance(v.data, da.Array)
+            assert isinstance(v.data, cubed.Array)
         else:
             assert v.dtype == data.dtype
 
@@ -2105,18 +2105,18 @@ class TestVariable(VariableSubclassobjects):
 
     @requires_dask
     def test_reduce_keepdims_dask(self):
-        import dask.array
+        import cubed
 
         v = Variable(["x", "y"], self.d).chunk()
 
         actual = v.mean(keepdims=True)
-        assert isinstance(actual.data, dask.array.Array)
+        assert isinstance(actual.data, cubed.Array)
 
         expected = Variable(v.dims, np.mean(self.d, keepdims=True))
         assert_identical(actual, expected)
 
         actual = v.mean(dim="y", keepdims=True)
-        assert isinstance(actual.data, dask.array.Array)
+        assert isinstance(actual.data, cubed.Array)
 
         expected = Variable(v.dims, np.mean(self.d, axis=1, keepdims=True))
         assert_identical(actual, expected)
@@ -2437,7 +2437,7 @@ class TestVariableWithDask(VariableSubclassobjects):
         assert blocked.load().chunks is None
 
         # Check that kwargs are passed
-        import dask.array as da
+        import cubed as da
 
         blocked = unblocked.chunk(name="testname_")
         assert isinstance(blocked.data, da.Array)
@@ -2473,7 +2473,7 @@ class TestVariableWithDask(VariableSubclassobjects):
         super().test_getitem_1d_fancy()
 
     def test_getitem_with_mask_nd_indexer(self):
-        import dask.array as da
+        import cubed as da
 
         v = Variable(["x"], da.arange(3, chunks=3))
         indexer = Variable(("x", "y"), [[0, -1], [-1, 2]])
@@ -2486,6 +2486,7 @@ class TestVariableWithDask(VariableSubclassobjects):
     @pytest.mark.parametrize("window", [3, 8, 11])
     @pytest.mark.parametrize("center", [True, False])
     def test_dask_rolling(self, dim, window, center):
+        pytest.importorskip("dask")
         import dask
         import dask.array as da
 
@@ -3042,6 +3043,7 @@ class TestBackendIndexing:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("load_async", [True, False])
     async def test_DaskIndexingAdapter(self, load_async):
+        pytest.importorskip("dask")
         import dask.array as da
 
         dask_array = da.asarray(self.d)
@@ -3141,11 +3143,11 @@ class TestNumpyCoercion:
     @requires_dask
     @requires_pint
     def test_from_pint_wrapping_dask(self, Var):
-        import dask
+        import cubed
         import pint
 
         arr = np.array([1, 2, 3])
-        d = dask.array.from_array(np.array([1, 2, 3]))
+        d = cubed.from_array(np.array([1, 2, 3]))
 
         # IndexVariable strips the unit
         with warnings.catch_warnings():
