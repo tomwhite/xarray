@@ -4,39 +4,40 @@ channels:
   - nodefaults
 dependencies:
   - aiobotocore
+  - array-api-strict
   - boto3
   - bottleneck
   - cartopy
-  - cdms2
   - cftime
   - flox
-  - fsspec!=2021.7.0
+  - fsspec
   - h5netcdf
   - h5py
   - hdf5
   - hypothesis
   - iris
-  - lxml  # Optional dep of pydap
+  - lxml # Optional dep of pydap
   - matplotlib-base
   - nc-time-axis
   - netcdf4
   - numba
   - numbagg
   - numexpr
-  - numpy
+  - numpy>=2.2
+  - opt_einsum
   - packaging
   - pandas
-  - pint<0.21
   - pip
   - pooch
   - pre-commit
-  - pseudonetcdf
+  - pyarrow
   - pydap
   - pytest
+  - pytest-asyncio
   - pytest-cov
   - pytest-env
-  - pytest-xdist
   - pytest-timeout
+  - pytest-xdist
   - rasterio
   - scipy
   - seaborn
@@ -44,3 +45,6 @@ dependencies:
   - toolz
   - typing_extensions
   - zarr
+  - pip:
+      - cubed
+      - cubed-xarray
