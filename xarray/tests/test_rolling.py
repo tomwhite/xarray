@@ -114,7 +114,7 @@ class TestDataArrayRolling:
     )
     @pytest.mark.parametrize("center", (True, False, None))
     @pytest.mark.parametrize("min_periods", (1, None))
-    @pytest.mark.parametrize("backend", ["numpy", "dask"], indirect=True)
+    @pytest.mark.parametrize("backend", ["numpy", "cubed"], indirect=True)
     def test_rolling_wrapped_bottleneck(
         self, da, name, center, min_periods, compute_backend
     ) -> None:
@@ -151,7 +151,7 @@ class TestDataArrayRolling:
     @pytest.mark.parametrize("center", (True, False, None))
     @pytest.mark.parametrize("min_periods", (1, None))
     @pytest.mark.parametrize("window", (7, 8))
-    @pytest.mark.parametrize("backend", ["dask"], indirect=True)
+    @pytest.mark.parametrize("backend", ["cubed"], indirect=True)
     def test_rolling_wrapped_dask(self, da, name, center, min_periods, window) -> None:
         # dask version
         rolling_obj = da.rolling(time=window, min_periods=min_periods, center=center)
