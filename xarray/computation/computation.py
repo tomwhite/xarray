@@ -285,12 +285,12 @@ def _cov_corr(
     # Try xr.cov(da,da) for da = xr.DataArray([[1, 2], [1, np.nan]], dims=["x", "time"])
     if weights is not None:
         cov = (
-            (demeaned_da_a.conj() * demeaned_da_b)
+            (duck_array_ops.conj(demeaned_da_a) * demeaned_da_b)
             .weighted(weights)
             .mean(dim=dim, skipna=True)
         )
     else:
-        cov = (demeaned_da_a.conj() * demeaned_da_b).mean(dim=dim, skipna=True)
+        cov = (duck_array_ops.conj(demeaned_da_a) * demeaned_da_b).mean(dim=dim, skipna=True)
 
     if method == "cov":
         # Adjust covariance for degrees of freedom

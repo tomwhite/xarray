@@ -397,7 +397,7 @@ class Weighted(Generic[T_Xarray]):
 
             # Compute their relative weight
             v = u * nw - h + 1
-            w = np.diff(v)
+            w = duck_array_ops.diff(v)
 
             # Apply the weights
             return (data * w).sum(axis=1)

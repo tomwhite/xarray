@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast, overload
 import numpy as np
 import pandas as pd
 
+from xarray.core import duck_array_ops
 from xarray.core.indexes import PandasMultiIndex
 from xarray.core.options import OPTIONS
 from xarray.core.utils import (
@@ -886,7 +887,7 @@ def _infer_interval_breaks(coord, axis=0, scale=None, check_monotonic=False):
             )
         coord = np.log10(coord)
 
-    deltas = 0.5 * np.diff(coord, axis=axis)
+    deltas = 0.5 * duck_array_ops.diff(coord, axis=axis)
     if deltas.size == 0:
         deltas = np.array(0.0)
     first = np.take(coord, [0], axis=axis) - np.take(deltas, [0], axis=axis)

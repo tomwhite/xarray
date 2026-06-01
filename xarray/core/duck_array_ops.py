@@ -437,6 +437,21 @@ def logical_not(data):
     return xp.logical_not(data)
 
 
+def conj(array):
+    xp = get_array_namespace(array)
+    return xp.conj(array)
+
+
+def diff(array, n=1, axis=-1, **kwargs):
+    xp = get_array_namespace(array)
+    return xp.diff(array, n=n, axis=axis, **kwargs)
+
+
+def searchsorted(a, v, side="left", sorter=None):
+    xp = get_array_namespace(a)
+    return xp.searchsorted(a, v, side=side, sorter=sorter)
+
+
 def clip(data, min=None, max=None):
     xp = get_array_namespace(data)
     return xp.clip(data, min, max)
@@ -575,7 +590,28 @@ prod.numeric_only = True
 prod.available_min_count = True
 cumprod_1d = _create_nan_agg_method("cumprod", invariant_0d=True)
 cumprod_1d.numeric_only = True
-cumsum_1d = _create_nan_agg_method("cumsum", invariant_0d=True)
+def cumsum_1d(values, axis=None, skipna=None, **kwargs):
+    """1-D cumsum dispatching to xp.cumulative_sum (array API) or xp.cumsum."""
+    kwargs.pop("out", None)
+    if axis == ():
+        return values
+    xp = get_array_namespace(values)
+    values = asarray(values, xp=xp)
+    if skipna or (
+        skipna is None
+        and (
+            dtypes.isdtype(values.dtype, ("complex floating", "real floating"), xp=xp)
+            or dtypes.is_object(values.dtype)
+        )
+    ):
+        from xarray.computation import nanops
+
+        return nanops.nancumsum(values, axis=axis, **kwargs)
+    if hasattr(xp, "cumulative_sum"):
+        return xp.cumulative_sum(values, axis=axis, **kwargs)
+    return xp.cumsum(values, axis=axis, **kwargs)
+
+
 cumsum_1d.numeric_only = True
 
 

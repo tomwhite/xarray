@@ -32,7 +32,7 @@ from xarray.core.common import (
 )
 from xarray.core.coordinates import Coordinates, coordinates_from_variable
 from xarray.core.dataarray import DataArray
-from xarray.core.duck_array_ops import array_all, isnull
+from xarray.core.duck_array_ops import array_all, isnull, searchsorted
 from xarray.core.formatting import first_n_items
 from xarray.core.groupby import T_Group, _DummyGroup
 from xarray.core.indexes import safe_cast_to_index
@@ -642,7 +642,7 @@ def _factorize_given_labels(data: np.ndarray, labels: np.ndarray) -> np.ndarray:
     # Copied from flox
     sorter = np.argsort(labels)
     is_sorted = array_all(sorter == np.arange(sorter.size))
-    codes = np.searchsorted(labels, data, sorter=sorter)
+    codes = searchsorted(labels, data, sorter=sorter)
     mask = ~np.isin(data, labels) | isnull(data) | (codes == len(labels))
     # codes is the index in to the sorted array.
     # if we didn't want sorting, unsort it back
